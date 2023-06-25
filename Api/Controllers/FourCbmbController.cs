@@ -11,20 +11,20 @@ namespace API.Controllers
     {
         private readonly ILogger<FourCbmbController> _logger;
         private readonly IHttpClientFactory _clientFactory;
+        private readonly IConfiguration _configuration;
+        private string localBaseURL;
 
-        public FourCbmbController(ILogger<FourCbmbController> logger, IHttpClientFactory clientFactory)
+        public FourCbmbController(ILogger<FourCbmbController> logger, IHttpClientFactory clientFactory, IConfiguration configuration)
         {
             _logger = logger;
             _clientFactory = clientFactory;
+            _configuration = configuration;
+            localBaseURL = _configuration.GetValue<string>("HostedURLStaging");
         }
 
-        [HttpGet("GetThreadTest")]
-        public async Task<List<FourCbmbPost>> Get()
+        [HttpGet("Thread/{board}/{threadId}")]
+        public async Task<List<FourCbmbPost>> GetThread(string board, int threadId)
         {
-            //placeholder
-            string board = "a";
-            int threadId = 253900388;
-
             var client = _clientFactory.CreateClient("fourcbmbthread");
             var response = await client.GetAsync($"https://a.4cdn.org/{board}/thread/{threadId}.json");
             var fetchedPosts = await response.Content.ReadFromJsonAsync<FourChanPostRoot>();
@@ -52,7 +52,7 @@ namespace API.Controllers
                     fourCbmbPost.ImageSpoiler = post.spoiler == 1 ? true : false;
                     fourCbmbPost.ImageUrl = $"https://i.4cdn.org/{board}/{post.tim}{post.ext}";
                     //temp hardcoded
-                    fourCbmbPost.ThumbnailUrl = $"https://localhost:7285/FourCbmb/thumbnailimage/{board}/{post.tim}";
+                    fourCbmbPost.ThumbnailUrl = $"{localBaseURL}FourCbmb/thumbnailimage/{board}/{post.tim}";
                 }
 
                 fourCbmbPost.Replies = (int)(post.replies != null ? post.replies : -1);
@@ -63,13 +63,9 @@ namespace API.Controllers
             return fourCbmbPosts;
         }
 
-        [HttpGet("GetPageTest")]
-        public async Task<List<FourCbmbThread>> GetPage()
+        [HttpGet("Page/{board}/{page}")]
+        public async Task<List<FourCbmbThread>> GetPage(string board, int page)
         {
-            //placeholder vals
-            string board = "a";
-            int page = 1;
-
             var client = _clientFactory.CreateClient("fourcbmbpage");
             var response = await client.GetAsync($"https://a.4cdn.org/{board}/{page}.json");
             var fetchedThreads = await response.Content.ReadFromJsonAsync<FourChanPageRoot>();
@@ -101,7 +97,7 @@ namespace API.Controllers
                         fourCbmbPost.ImageSpoiler = post.spoiler == 1 ? true : false;
                         fourCbmbPost.ImageUrl = $"https://i.4cdn.org/{board}/{post.tim}{post.ext}";
                         //temp hardcoded
-                        fourCbmbPost.ThumbnailUrl = $"https://localhost:7285/FourCbmb/thumbnailimage/{board}/{post.tim}";
+                        fourCbmbPost.ThumbnailUrl = $"{localBaseURL}FourCbmb/thumbnailimage/{board}/{post.tim}";
                     }
 
                     fourCbmbPost.Replies = (int)(post.replies != null ? post.replies : -1);

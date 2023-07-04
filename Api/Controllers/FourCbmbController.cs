@@ -19,7 +19,7 @@ namespace API.Controllers
             _logger = logger;
             _clientFactory = clientFactory;
             _configuration = configuration;
-            localBaseURL = _configuration.GetValue<string>("HostedURLStaging");
+            localBaseURL = _configuration.GetValue<string>("HostedURLProduction");
         }
 
         [HttpGet("Thread/{board}/{threadId}")]
@@ -53,6 +53,7 @@ namespace API.Controllers
                     fourCbmbPost.ImageUrl = $"https://i.4cdn.org/{board}/{post.tim}{post.ext}";
                     //temp hardcoded
                     fourCbmbPost.ThumbnailUrl = $"{localBaseURL}FourCbmb/thumbnailimage/{board}/{post.tim}";
+                    //fourCbmbPost.ThumbnailUrl = $"https://i.4cdn.org/{board}/{post.tim}s.jpg";
                 }
 
                 fourCbmbPost.Replies = (int)(post.replies != null ? post.replies : -1);
@@ -98,6 +99,7 @@ namespace API.Controllers
                         fourCbmbPost.ImageUrl = $"https://i.4cdn.org/{board}/{post.tim}{post.ext}";
                         //temp hardcoded
                         fourCbmbPost.ThumbnailUrl = $"{localBaseURL}FourCbmb/thumbnailimage/{board}/{post.tim}";
+                        //fourCbmbPost.ThumbnailUrl = $"https://i.4cdn.org/{board}/{post.tim}s.jpg";
                     }
 
                     fourCbmbPost.Replies = (int)(post.replies != null ? post.replies : -1);

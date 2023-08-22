@@ -19,7 +19,7 @@ namespace API.Controllers
             _logger = logger;
             _clientFactory = clientFactory;
             _configuration = configuration;
-            localBaseURL = _configuration.GetValue<string>("HostedURLProduction");
+            localBaseURL = _configuration.GetValue<string>("HostedURLDev");
         }
 
         [HttpGet("Thread/{board}/{threadId}")]
@@ -50,10 +50,17 @@ namespace API.Controllers
                     fourCbmbPost.ThumbnailImageHeight = post.tn_h;
                     fourCbmbPost.ImageDeleted = post.filedeleted == 1 ? true : false;
                     fourCbmbPost.ImageSpoiler = post.spoiler == 1 ? true : false;
-                    fourCbmbPost.ImageUrl = $"https://i.4cdn.org/{board}/{post.tim}{post.ext}";
+                    if(post.ext == ".webm")
+                    {
+                        fourCbmbPost.ImageUrl = $"{localBaseURL}FourCbmb/webm/{board}/{post.tim}";
+                    }
+                    else
+                    {
+                        fourCbmbPost.ImageUrl = $"https://i.4cdn.org/{board}/{post.tim}{post.ext}";
+                    }
                     //temp hardcoded
-                    fourCbmbPost.ThumbnailUrl = $"{localBaseURL}FourCbmb/thumbnailimage/{board}/{post.tim}";
-                    //fourCbmbPost.ThumbnailUrl = $"https://i.4cdn.org/{board}/{post.tim}s.jpg";
+                    //fourCbmbPost.ThumbnailUrl = $"{localBaseURL}FourCbmb/thumbnailimage/{board}/{post.tim}";
+                    fourCbmbPost.ThumbnailUrl = $"https://i.4cdn.org/{board}/{post.tim}s.jpg";
                 }
 
                 fourCbmbPost.Replies = (int)(post.replies != null ? post.replies : -1);
@@ -96,10 +103,17 @@ namespace API.Controllers
                         fourCbmbPost.ThumbnailImageHeight = post.tn_h;
                         fourCbmbPost.ImageDeleted = post.filedeleted == 1 ? true : false;
                         fourCbmbPost.ImageSpoiler = post.spoiler == 1 ? true : false;
-                        fourCbmbPost.ImageUrl = $"https://i.4cdn.org/{board}/{post.tim}{post.ext}";
+                        if(post.ext == ".webm")
+                        {
+                            fourCbmbPost.ImageUrl = $"{localBaseURL}FourCbmb/webm/{board}/{post.tim}";
+                        }
+                        else
+                        {
+                            fourCbmbPost.ImageUrl = $"https://i.4cdn.org/{board}/{post.tim}{post.ext}";
+                        }
                         //temp hardcoded
-                        fourCbmbPost.ThumbnailUrl = $"{localBaseURL}FourCbmb/thumbnailimage/{board}/{post.tim}";
-                        //fourCbmbPost.ThumbnailUrl = $"https://i.4cdn.org/{board}/{post.tim}s.jpg";
+                        //fourCbmbPost.ThumbnailUrl = $"{localBaseURL}FourCbmb/thumbnailimage/{board}/{post.tim}";
+                        fourCbmbPost.ThumbnailUrl = $"https://i.4cdn.org/{board}/{post.tim}s.jpg";
                     }
 
                     fourCbmbPost.Replies = (int)(post.replies != null ? post.replies : -1);
@@ -123,5 +137,15 @@ namespace API.Controllers
             var image = await response.Content.ReadAsByteArrayAsync();
             return File(image, "image/jpeg");
         }
+
+        [HttpGet("webm/{board}/{tim}")]
+        public async Task<IActionResult> GetWebm(string board, string tim)
+        {
+            var client = _clientFactory.CreateClient("fourcbmbwebm");
+            var response = await client.GetAsync($"https://i.4cdn.org/{board}/{tim}.webm");
+            var webm = await response.Content.ReadAsByteArrayAsync();
+            return File(webm, "video/webm");
+        }
+
     }
 }

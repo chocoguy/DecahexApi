@@ -126,17 +126,15 @@ namespace API.Controllers
             return fourCbmbThreads;
         }
 
-
-        [HttpGet("thumbnailimage/{board}/{tim}")]
-        public async Task<IActionResult> GetThumbnailImage(string board, string tim)
-        {
-            //We cannot fetch images from the frontend beacause of CORS
-            //This endpoint will act as a middleman to fetch the image from 4chan and return it to the frontend
-            var client = _clientFactory.CreateClient("fourcbmbimage");
-            var response = await client.GetAsync($"https://i.4cdn.org/{board}/{tim}s.jpg");
-            var image = await response.Content.ReadAsByteArrayAsync();
-            return File(image, "image/jpeg");
-        }
+        //! Deprecated
+        // [HttpGet("thumbnailimage/{board}/{tim}")]
+        // public async Task<IActionResult> GetThumbnailImage(string board, string tim)
+        // {
+        //     var client = _clientFactory.CreateClient("fourcbmbimage");
+        //     var response = await client.GetAsync($"https://i.4cdn.org/{board}/{tim}s.jpg");
+        //     var image = await response.Content.ReadAsByteArrayAsync();
+        //     return File(image, "image/jpeg");
+        // }
 
         [HttpGet("webm/{board}/{tim}")]
         public async Task<IActionResult> GetWebm(string board, string tim)

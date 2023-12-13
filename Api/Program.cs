@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+var MalApiClientId = builder.Configuration["MalClientId"];
 
+//MalClientId
 
 builder.Services.AddControllers();
 

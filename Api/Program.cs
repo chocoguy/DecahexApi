@@ -5,11 +5,20 @@ var MalApiClientId = builder.Configuration["MalClientId"];
 
 //MalClientId
 
+
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient(
+    "MALClient",
+    client =>
+    {
+        client.BaseAddress = new Uri("https://api.myanimelist.net/v2/anime");
+        client.DefaultRequestHeaders.Add("X-MAL-CLIENT-ID", MalApiClientId);
+    }
+);
 
 builder.Services.AddCors(options =>
 {

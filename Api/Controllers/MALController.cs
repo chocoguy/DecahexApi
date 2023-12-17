@@ -2,6 +2,8 @@
 using API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Api.Controllers
 {
@@ -23,14 +25,14 @@ namespace Api.Controllers
         }
 
         [HttpGet("Anime/{malId}")]
-        public async Task<AnimeRecord?> GetAnimeInfo(int malId)
+        public async Task<object> GetAnimeInfo(int malId)
         {
             
 
             try
             {
                 var client = _clientFactory.CreateClient("MALClient");
-                var res = await client.GetAsync($"/{malId}{_getAnimeInfoFields}");
+                var res = await client.GetAsync($"/v2/anime/{malId}{_getAnimeInfoFields}");
                 MALRecord currMALRecord = await res.Content.ReadFromJsonAsync<MALRecord>();
 
                 AnimeRecord currAnimeRecord = new() {
@@ -59,28 +61,58 @@ namespace Api.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                return null;
+                return StatusCode(500);
             }
         }
 
-        [HttpGet("AnimeSearch")]
-        public async Task<MALSearch> SearchAnime(string searchQuery)
+        [HttpPost("AnimeSearch")]
+        public async Task<object> SearchAnime()
         {
+            try
+            {
+                var client = _clientFactory.CreateClient("MALClient");
+                string query = await GetTextFromBody(Request);
+                var res = await client.GetAsync($"/v2/anime?q={query}&limit=8");
+                MALSearch currMALSearch = await res.Content.ReadFromJsonAsync<MALSearch>();
 
+                return currMALSearch;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500);
+            }
         }
 
         private string GenerateStudioString(List<Studio> studios)
         {
             string generatedString = "";
 
+            if(studios == null)
+            {
+                return "";
+            }
+
             foreach (Studio studio in studios)
             {
                 generatedString += $"{studio.name}, ";
             }
 
-            generatedString.TrimEnd(',');
+            generatedString = generatedString.TrimEnd(',', ' ');
 
             return generatedString;
+        }
+
+        private static async Task<string> GetTextFromBody(HttpRequest req)
+        {
+            if(!req.Body.CanSeek){req.EnableBuffering();}
+            req.Body.Position = 0;
+
+            var reader = new StreamReader(req.Body, Encoding.UTF8);
+            var reqString = await reader.ReadToEndAsync().ConfigureAwait(false);
+
+            return reqString;
         }
 
     }

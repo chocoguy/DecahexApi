@@ -15,7 +15,7 @@ builder.Services.AddHttpClient(
     "MALClient",
     client =>
     {
-        client.BaseAddress = new Uri("https://api.myanimelist.net/v2/anime");
+        client.BaseAddress = new Uri("https://api.myanimelist.net");
         client.DefaultRequestHeaders.Add("X-MAL-CLIENT-ID", MalApiClientId);
     }
 );

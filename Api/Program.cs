@@ -1,16 +1,24 @@
 ﻿using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
-var MalApiClientId = builder.Configuration["MalClientId"];
+var MalApiClientId = "0";
 
-//MalClientId
 
+if (builder.Environment.IsProduction())
+{
+    builder.Configuration.AddEnvironmentVariables();
+}
+
+MalApiClientId = builder.Configuration["MalClientId"];
 
 
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+
 builder.Services.AddHttpClient(
     "MALClient",
     client =>
